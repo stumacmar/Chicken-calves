@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Only Calves</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #12110f; --surface: #211f1b; --line: rgba(240,228,210,.1); --text: #f1e9dc; --muted: #b3a896; --orange: #d0642f; --orange-2: #e8834a; --green: #a9b84a; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; display: grid; place-items: center; padding: 16px;
+    background: radial-gradient(circle at 70% 10%, rgba(169,184,74,.16), transparent 45%),
+                radial-gradient(circle at 20% 100%, rgba(208,100,47,.2), transparent 50%), var(--bg);
+    color: var(--text); font: 16px/1.6 "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+  }
+  .gate {
+    width: 100%; max-width: 420px; text-align: center; padding: 48px 32px 40px; border-radius: 32px;
+    background: rgba(33,31,27,.7); border: 1px solid var(--line);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 40px 100px -30px rgba(0,0,0,.8);
+    animation: rise .8s cubic-bezier(.2,.7,.2,1);
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(16px); } }
+  .lock {
+    width: 64px; height: 64px; margin: 0 auto 24px; border-radius: 50%; display: grid; place-items: center;
+    background: rgba(208,100,47,.14); color: var(--orange-2); box-shadow: 0 0 0 1px rgba(208,100,47,.35);
+  }
+  h1 { font: 600 40px/1.05 "Fraunces", Georgia, serif; letter-spacing: -.02em; margin: 0 0 8px; }
+  h1 em { font-style: italic; font-weight: 400; color: var(--orange-2); }
+  p { color: var(--muted); margin: 0 0 28px; }
+  form { display: grid; gap: 12px; }
+  .field { position: relative; }
+  input {
+    width: 100%; padding: 16px 52px 16px 20px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--text); font: 16px "Inter", sans-serif; outline: none; transition: border-color .2s;
+  }
+  input:focus { border-color: var(--orange); }
+  .toggle {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 40px; height: 40px;
+    border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; font-size: 18px;
+  }
+  .toggle:focus-visible, button:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  .go {
+    padding: 16px; border: 0; border-radius: 999px; background: var(--orange); color: #fff; cursor: pointer;
+    font: 600 15px "Inter", sans-serif; box-shadow: 0 10px 30px -10px rgba(208,100,47,.7); transition: background .2s, transform .2s;
+  }
+  .go:hover { background: var(--orange-2); transform: translateY(-1px); }
+  .go:disabled { opacity: .7; cursor: wait; transform: none; }
+  .msg { min-height: 1.6em; margin: 14px 0 0; font-size: 14px; }
+  .msg.err { color: #ef8a6a; }
+  .shake { animation: shake .4s; }
+  @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+  .remember { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .remember input { width: auto; accent-color: var(--orange); }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</head>
+<body>
+<main class="gate" id="gate">
+  <div class="lock" aria-hidden="true">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+  </div>
+  <h1>Only <em>Calves</em></h1>
+  <p>Members only. Say the magic words.</p>
+  <form id="form">
+    <div class="field">
+      <label for="pw" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Password</label>
+      <input id="pw" type="password" placeholder="Password" autocomplete="current-password" autofocus required>
+      <button type="button" class="toggle" id="toggle" aria-label="Show password">👁</button>
+    </div>
+    <button class="go" id="go" type="submit">Enter</button>
+    <label class="remember"><input type="checkbox" id="remember"> Remember me on this device</label>
+  </form>
+  <p class="msg" id="msg" role="status"></p>
+</main>
+<script>
+(() => {
+  const payload = __PAYLOAD__;
+  const KEY = "onlycalves-pw";
+  const normalise = s => s.toLowerCase().replace(/\s+/g, "");
+  const fromB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const $ = id => document.getElementById(id);
+  const store = {
+    get() { try { return localStorage.getItem(KEY) || sessionStorage.getItem(KEY); } catch { return null; } },
+    set(v, persist) { try { (persist ? localStorage : sessionStorage).setItem(KEY, v); } catch {} },
+    clear() { try { localStorage.removeItem(KEY); sessionStorage.removeItem(KEY); } catch {} }
+  };
+
+  async function decrypt(password) {
+    const enc = new TextEncoder();
+    const base = await crypto.subtle.importKey("raw", enc.encode(normalise(password)), "PBKDF2", false, ["deriveKey"]);
+    const key = await crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt: fromB64(payload.salt), iterations: 250000, hash: "SHA-256" },
+      base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]
+    );
+    const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: fromB64(payload.iv) }, key, fromB64(payload.data));
+    return new TextDecoder().decode(plain);
+  }
+
+  function show(html) {
+    document.open();
+    document.write(html);
+    document.close();
+  }
+
+  $("toggle").addEventListener("click", () => {
+    const pw = $("pw"), hidden = pw.type === "password";
+    pw.type = hidden ? "text" : "password";
+    $("toggle").setAttribute("aria-label", hidden ? "Hide password" : "Show password");
+  });
+
+  $("form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const pw = $("pw").value, go = $("go"), msg = $("msg");
+    go.disabled = true; go.textContent = "Checking…"; msg.textContent = ""; msg.className = "msg";
+    try {
+      const html = await decrypt(pw);
+      store.set(pw, $("remember").checked);
+      show(html);
+    } catch {
+      go.disabled = false; go.textContent = "Enter";
+      msg.textContent = "Wrong password. The Guru is not impressed.";
+      msg.className = "msg err";
+      const gate = $("gate");
+      gate.classList.remove("shake"); void gate.offsetWidth; gate.classList.add("shake");
+      $("pw").select();
+    }
+  });
+
+  const saved = store.get();
+  if (saved) decrypt(saved).then(show).catch(() => store.clear());
+})();
+</script>
+</body>
+</html>
