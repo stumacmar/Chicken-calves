@@ -363,3 +363,66 @@ details p { color: var(--muted); padding-bottom: 24px; max-width: 680px; animati
   .reveal { opacity: 1; transform: none; }
   html { scroll-behavior: auto; }
 }
+
+/* Hero proof card */
+.hero-proof {
+  position: absolute; right: -36px; bottom: -28px; z-index: 2; width: 210px;
+  display: block; text-decoration: none; padding: 8px; border-radius: 20px;
+  background: rgba(26,25,22,.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--line); box-shadow: 0 30px 60px -20px rgba(0,0,0,.8);
+  transform: rotate(4deg); transition: transform .4s var(--ease);
+  animation: float 6s ease-in-out infinite;
+}
+.hero-proof:hover { transform: rotate(0) scale(1.04); animation-play-state: paused; }
+.hero-proof img { border-radius: 14px; aspect-ratio: 4 / 3; object-fit: cover; object-position: 35% 50%; width: 100%; }
+.hero-proof span { display: block; padding: 10px 6px 4px; font-size: 13px; color: var(--muted); }
+.hero-proof b { display: block; font: 600 17px var(--serif); color: var(--orange-2); }
+@keyframes float { 50% { translate: 0 -8px; } }
+
+/* Proof */
+.proof-grid { display: grid; grid-template-columns: .75fr 1.25fr; gap: 20px; align-items: stretch; }
+.proof-grid figure { position: relative; margin: 0; border-radius: 28px; overflow: hidden; border: 1px solid var(--line); background: var(--surface); }
+.proof-grid img { width: 100%; height: 100%; object-fit: cover; }
+.proof-face img { object-position: 60% 60%; }
+.proof-calf { align-self: start; }
+.proof-calf img { height: auto; }
+.proof-grid figcaption {
+  position: absolute; left: 16px; bottom: 16px; display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; border-radius: 999px; font: 600 15px var(--serif);
+  background: rgba(18,17,15,.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--line);
+}
+.proof-grid figcaption span { font: 600 11px var(--sans); color: var(--green); letter-spacing: .1em; }
+.proof-grid figcaption em { font: 400 13px var(--sans); color: var(--muted); font-style: normal; }
+.pin {
+  position: absolute; left: var(--x); top: var(--y); width: 26px; height: 26px; margin: -13px 0 0 -13px;
+  border-radius: 50%; border: 2px solid #fff; background: var(--orange); cursor: pointer; padding: 0;
+  box-shadow: 0 0 0 0 rgba(208,100,47,.7); animation: pinPulse 2.4s infinite;
+}
+@keyframes pinPulse { 70% { box-shadow: 0 0 0 16px rgba(208,100,47,0); } 100% { box-shadow: 0 0 0 0 rgba(208,100,47,0); } }
+.pin-label {
+  position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, calc(-100% - 22px)) scale(.95);
+  width: 210px; padding: 12px 14px; border-radius: 14px; font-size: 13px; line-height: 1.45; color: var(--muted);
+  background: rgba(18,17,15,.92); border: 1px solid var(--line); pointer-events: none;
+  opacity: 0; transition: opacity .25s, transform .25s var(--ease); z-index: 3;
+}
+.pin-label b { display: block; color: var(--text); font: 600 16px var(--serif); margin-bottom: 2px; }
+.pin:hover + .pin-label, .pin:focus-visible + .pin-label, .pin.on + .pin-label { opacity: 1; transform: translate(-50%, calc(-100% - 22px)); }
+.proof-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px; }
+.proof-strip p { margin: 0; padding: 18px 20px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+.proof-strip b { display: block; font: 600 32px/1.1 var(--serif); color: var(--orange-2); }
+
+.join-faces { display: flex; justify-content: center; margin-bottom: 24px; }
+.join-faces .join-face { margin: 0; }
+.join-faces .join-face + .join-face { margin-left: -18px; }
+
+@media (max-width: 860px) {
+  .hero-proof { right: 8px; bottom: -36px; width: 150px; }
+  .hero-photo figcaption { display: none; }
+  .hero-proof span { font-size: 11px; }
+  .hero-proof b { font-size: 15px; }
+  .proof-grid { grid-template-columns: 1fr; }
+  .proof-face img { aspect-ratio: 4 / 3; object-position: 60% 45%; }
+  .proof-strip { grid-template-columns: repeat(2, 1fr); }
+  .pin-label { width: 170px; }
+}
+@media (prefers-reduced-motion: reduce) { .hero-proof { animation: none; } }

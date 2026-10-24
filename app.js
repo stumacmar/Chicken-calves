@@ -232,3 +232,10 @@
     e.target.reset();
   });
 })();
+
+/* Proof pins: tap to toggle on touch screens */
+document.querySelectorAll(".pin").forEach(pin => pin.addEventListener("click", () => {
+  const on = !pin.classList.contains("on");
+  document.querySelectorAll(".pin").forEach(p => p.classList.remove("on"));
+  pin.classList.toggle("on", on);
+}));
